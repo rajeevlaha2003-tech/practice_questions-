@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>TaskFlow — DOM Explorer</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap');
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0d0f14;
+      --surface: #161920;
+      --card: #1c2029;
+      --border: #2a2f3e;
+      --border-light: #353c52;
+      --accent: #6c63ff;
+      --accent-dim: rgba(108,99,255,0.15);
+      --accent-glow: rgba(108,99,255,0.35);
+      --green: #3ecf8e;
+      --green-dim: rgba(62,207,142,0.12);
+      --red: #ff6b6b;
+      --red-dim: rgba(255,107,107,0.12);
+      --amber: #f5a623;
+      --amber-dim: rgba(245,166,35,0.12);
+      --text-primary: #e8eaf0;
+      --text-secondary: #8b92a9;
+      --text-muted: #545c75;
+      --radius: 12px;
+      --radius-sm: 8px;
+      --transition: 0.18s ease;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text-primary);
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+
+    /* ── HEADER ─────────────────────────────── */
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 clamp(16px, 5vw, 48px);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(12px);
+    }
+    .header-inner {
+      max-width: 900px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 60px;
+      gap: 12px;
+    }
+    .logo {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      letter-spacing: -0.02em;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .logo-dot {
+      width: 8px; height: 8px;
+      background: var(--accent);
+      border-radius: 50%;
+      display: inline-block;
+      box-shadow: 0 0 10px var(--accent-glow);
+    }
+    .header-stats {
+      display: flex;
+      gap: 20px;
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+    }
+    .stat-pill {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .stat-num {
+      font-weight: 600;
+      color: var(--text-primary);
+      font-size: 0.88rem;
+    }
+
+    /* ── MAIN LAYOUT ─────────────────────────── */
+    main {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: clamp(20px, 4vw, 40px) clamp(16px, 5vw, 48px) 80px;
+    }
+
+    /* ── HERO ─────────────────────────────────── */
+    .hero {
+      margin-bottom: 32px;
+      padding: 28px;
+      background: linear-gradient(135deg, var(--card) 0%, #1a1d2a 100%);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -60px; right: -60px;
+      width: 200px; height: 200px;
+      background: var(--accent-glow);
+      filter: blur(80px);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+    .hero h1 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(1.4rem, 3vw, 1.8rem);
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      margin-bottom: 6px;
+      color: var(--text-primary);
+    }
+    .hero p {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      max-width: 480px;
+    }
+    .progress-wrap {
+      margin-top: 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .progress-bar-bg {
+      flex: 1;
+      height: 6px;
+      background: var(--border);
+      border-radius: 99px;
+      overflow: hidden;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), var(--green));
+      border-radius: 99px;
+      transition: width 0.4s ease;
+    }
+    .progress-label {
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+      white-space: nowrap;
+      font-weight: 500;
+    }
+
+    /* ── ADD TASK ──────────────────────────────── */
+    .add-section {
+      margin-bottom: 24px;
+    }
+    .add-box {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      transition: border-color var(--transition);
+    }
+    .add-box:focus-within {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-dim);
+    }
+    .add-row {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .task-input {
+      flex: 1;
+      min-width: 180px;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--text-primary);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.95rem;
+      padding: 6px 4px;
+    }
+    .task-input::placeholder { color: var(--text-muted); }
+
+    .select-styled {
+      appearance: none;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text-secondary);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.82rem;
+      padding: 7px 28px 7px 10px;
+      cursor: pointer;
+      outline: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238b92a9' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 8px center;
+      transition: border-color var(--transition);
+    }
+    .select-styled:focus { border-color: var(--accent); }
+
+    .btn-add {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius-sm);
+      padding: 8px 18px;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity var(--transition), transform var(--transition);
+      white-space: nowrap;
+    }
+    .btn-add:hover { opacity: 0.88; transform: translateY(-1px); }
+    .btn-add:active { transform: translateY(0); }
+
+    /* ── CONTROLS ─────────────────────────────── */
+    .controls {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .filter-tabs {
+      display: flex;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 3px;
+      gap: 2px;
+    }
+    .tab-btn {
+      background: transparent;
+      border: none;
+      border-radius: 6px;
+      color: var(--text-muted);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 500;
+      padding: 5px 13px;
+      cursor: pointer;
+      transition: all var(--transition);
+    }
+    .tab-btn.active {
+      background: var(--card);
+      color: var(--text-primary);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    }
+
+    .search-wrap {
+      flex: 1;
+      min-width: 140px;
+      position: relative;
+    }
+    .search-icon {
+      position: absolute;
+      left: 10px; top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      pointer-events: none;
+    }
+    .search-input {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text-primary);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.85rem;
+      outline: none;
+      padding: 7px 10px 7px 32px;
+      transition: border-color var(--transition);
+    }
+    .search-input::placeholder { color: var(--text-muted); }
+    .search-input:focus { border-color: var(--accent); }
+
+    .btn-clear {
+      margin-left: auto;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      padding: 7px 13px;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      transition: all var(--transition);
+    }
+    .btn-clear:hover { color: var(--red); border-color: var(--red); }
+
+    /* ── TASK LIST ─────────────────────────────── */
+    .tasks-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .tasks-label {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+    .tasks-count {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    #task-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .task-item {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      transition: border-color var(--transition), transform var(--transition), box-shadow var(--transition);
+      animation: slideIn 0.22s ease;
+      cursor: default;
+      position: relative;
+    }
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(-6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .task-item:hover {
+      border-color: var(--border-light);
+      box-shadow: 0 2px 12px rgba(0,0,0,0.25);
+    }
+    .task-item.completed {
+      opacity: 0.55;
+    }
+    .task-item.completed .task-text {
+      text-decoration: line-through;
+      color: var(--text-muted);
+    }
+
+    /* custom checkbox */
+    .check-btn {
+      flex-shrink: 0;
+      width: 20px; height: 20px;
+      border-radius: 6px;
+      border: 2px solid var(--border-light);
+      background: transparent;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all var(--transition);
+      margin-top: 1px;
+    }
+    .check-btn:hover { border-color: var(--accent); background: var(--accent-dim); }
+    .task-item.completed .check-btn {
+      background: var(--green);
+      border-color: var(--green);
+    }
+    .check-icon { display: none; }
+    .task-item.completed .check-icon { display: block; }
+
+    .task-body { flex: 1; min-width: 0; }
+    .task-text {
+      font-size: 0.92rem;
+      color: var(--text-primary);
+      word-break: break-word;
+      font-weight: 400;
+    }
+    .task-meta {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      margin-top: 5px;
+      flex-wrap: wrap;
+    }
+
+    .priority-badge {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      padding: 2px 8px;
+      border-radius: 99px;
+      text-transform: uppercase;
+    }
+    .priority-badge.high   { background: var(--red-dim);   color: var(--red); }
+    .priority-badge.medium { background: var(--amber-dim); color: var(--amber); }
+    .priority-badge.low    { background: var(--green-dim); color: var(--green); }
+
+    .category-tag {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 99px;
+      padding: 2px 9px;
+    }
+
+    .task-date {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      margin-left: auto;
+    }
+
+    .task-actions {
+      display: flex;
+      gap: 4px;
+      flex-shrink: 0;
+      opacity: 0;
+      transition: opacity var(--transition);
+    }
+    .task-item:hover .task-actions { opacity: 1; }
+    .task-actions:focus-within { opacity: 1; }
+
+    .icon-btn {
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: 6px;
+      width: 30px; height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: var(--text-muted);
+      transition: all var(--transition);
+    }
+    .icon-btn:hover.del { color: var(--red); border-color: var(--red-dim); background: var(--red-dim); }
+    .icon-btn:hover.edit { color: var(--accent); border-color: var(--accent-dim); background: var(--accent-dim); }
+
+    /* ── EMPTY STATE ──────────────────────────── */
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--text-muted);
+      display: none;
+    }
+    .empty-state.visible { display: block; }
+    .empty-icon {
+      font-size: 2.5rem;
+      margin-bottom: 12px;
+    }
+    .empty-state h3 {
+      font-size: 1rem;
+      color: var(--text-secondary);
+      margin-bottom: 6px;
+    }
+    .empty-state p { font-size: 0.85rem; }
+
+    /* ── TOAST ────────────────────────────────── */
+    #toast-container {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 999;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      align-items: center;
+    }
+    .toast {
+      background: var(--card);
+      border: 1px solid var(--border-light);
+      border-radius: 10px;
+      padding: 10px 18px;
+      font-size: 0.85rem;
+      color: var(--text-primary);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+      animation: toastIn 0.22s ease;
+      white-space: nowrap;
+    }
+    @keyframes toastIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .toast.fadeout { animation: toastOut 0.3s ease forwards; }
+    @keyframes toastOut {
+      to { opacity: 0; transform: translateY(8px); }
+    }
+
+    /* ── EDIT MODAL ───────────────────────────── */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.65);
+      backdrop-filter: blur(4px);
+      z-index: 200;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: var(--card);
+      border: 1px solid var(--border-light);
+      border-radius: 16px;
+      padding: 24px;
+      width: 100%;
+      max-width: 420px;
+      animation: modalIn 0.2s ease;
+    }
+    @keyframes modalIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to   { opacity: 1; transform: scale(1); }
+    }
+    .modal h2 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.05rem;
+      margin-bottom: 16px;
+      font-weight: 600;
+    }
+    .modal-field {
+      margin-bottom: 14px;
+    }
+    .modal-label {
+      display: block;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+    .modal-input {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text-primary);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+      padding: 9px 12px;
+      outline: none;
+      transition: border-color var(--transition);
+    }
+    .modal-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-dim); }
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      margin-top: 20px;
+    }
+    .btn-cancel {
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text-secondary);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.88rem;
+      padding: 8px 16px;
+      cursor: pointer;
+      transition: border-color var(--transition);
+    }
+    .btn-cancel:hover { border-color: var(--text-muted); }
+    .btn-save {
+      background: var(--accent);
+      border: none;
+      border-radius: var(--radius-sm);
+      color: #fff;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.88rem;
+      font-weight: 600;
+      padding: 8px 20px;
+      cursor: pointer;
+      transition: opacity var(--transition);
+    }
+    .btn-save:hover { opacity: 0.88; }
+
+    /* ── RESPONSIVE ───────────────────────────── */
+    @media (max-width: 600px) {
+      .header-stats { display: none; }
+      .controls { gap: 8px; }
+      .filter-tabs { width: 100%; }
+      .tab-btn { flex: 1; text-align: center; }
+      .task-item { padding: 12px 13px; }
+      .task-actions { opacity: 1; }
+      .hero { padding: 20px; }
+      .btn-clear { display: none; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── HEADER ── -->
+<header>
+  <div class="header-inner">
+    <div class="logo"><span class="logo-dot"></span> TASK-MANAGER</div>
+    <div class="header-stats">
+      <div class="stat-pill">
+        <span class="stat-num" id="stat-total">0</span>
+        <span>tasks</span>
+      </div>
+      <div class="stat-pill">
+        <span class="stat-num" id="stat-done">0</span>
+        <span>done</span>
+      </div>
+      <div class="stat-pill">
+        <span class="stat-num" id="stat-pending">0</span>
+        <span>pending</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ── MAIN ── -->
+<main>
+
+  <!-- Hero -->
+  <section class="hero">
+    <h1>DOM Explorer Assignment</h1>
+    <p>Build and manage tasks while practising DOM manipulation, event delegation, and the browser rendering pipeline.</p>
+    <div class="progress-wrap">
+      <div class="progress-bar-bg">
+        <div class="progress-bar-fill" id="progress-fill" style="width:0%"></div>
+      </div>
+      <span class="progress-label" id="progress-label">0% complete</span>
+    </div>
+  </section>
+
+  <!-- Add Task -->
+  <section class="add-section">
+    <div class="add-box">
+      <div class="add-row">
+        <input
+          class="task-input"
+          id="task-input"
+          type="text"
+          placeholder="Add a new task…"
+          autocomplete="off"
+          maxlength="160"
+        />
+        <select class="select-styled" id="priority-select">
+          <option value="medium">Medium</option>
+          <option value="high">High</option>
+          <option value="low">Low</option>
+        </select>
+        <select class="select-styled" id="category-select">
+          <option value="General">General</option>
+          <option value="HTML/CSS">HTML/CSS</option>
+          <option value="JavaScript">JavaScript</option>
+          <option value="DOM">DOM</option>
+          <option value="Events">Events</option>
+        </select>
+        <button class="btn-add" id="add-btn">Add Task</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Controls -->
+  <div class="controls">
+    <div class="filter-tabs" id="filter-tabs" role="tablist">
+      <button class="tab-btn active" data-filter="all" role="tab" aria-selected="true">All</button>
+      <button class="tab-btn" data-filter="active" role="tab" aria-selected="false">Active</button>
+      <button class="tab-btn" data-filter="completed" role="tab" aria-selected="false">Done</button>
+    </div>
+    <div class="search-wrap">
+      <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+      <input class="search-input" id="search-input" type="search" placeholder="Search tasks…"/>
+    </div>
+    <button class="btn-clear" id="clear-btn">Clear done</button>
+  </div>
+
+  <!-- Task List -->
+  <div class="tasks-header">
+    <span class="tasks-label">Tasks</span>
+    <span class="tasks-count" id="visible-count"></span>
+  </div>
+
+  <ul id="task-list" aria-label="Task list"></ul>
+  <div class="empty-state" id="empty-state">
+    <div class="empty-icon">📋</div>
+    <h3>No tasks here</h3>
+    <p>Add a task above to get started.</p>
+  </div>
+
+</main>
+
+<!-- ── TOAST ── -->
+<div id="toast-container" aria-live="polite"></div>
+
+<!-- ── EDIT MODAL ── -->
+<div class="modal-overlay" id="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+  <
