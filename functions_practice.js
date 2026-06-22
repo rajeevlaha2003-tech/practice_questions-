@@ -183,3 +183,15 @@ const tesla = new ElectricCar("Tesla", "Model 3", "75kWh");
 tesla.start();
 tesla.drive();
 tesla.charge();
+
+
+// // // // // what will happen   if coordinates   is missing ? how can you prevent errors ?
+// // // // const locations  = {
+// // // //     city : "Bhopal",
+// // // //     coordinate : {
+// // // //         lat : 23.2599,
+// // // //         long : 77.4126,
+// // // //     },
+// // // // };
+
+
