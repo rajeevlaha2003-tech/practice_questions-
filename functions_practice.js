@@ -25,7 +25,7 @@
 // // // // // // // // // // // // let score = arr.some(function(val){
 // // // // // // // // // // // //     return val < 60 ;
 // // // // // // // // // // // // });
-   
+
 // // // // // // // // // // // // use .every to check if all the numbers are even 
 
 // // // // // // // // // // // let num = [ 2, 4 ,7 , 6 ,9 ];
@@ -53,7 +53,7 @@
 // // // // // // // //     age :22,
 // // // // // // // //     isEnrolled : true 
 // // // // // // // // };
- 
+
 
 // // // // // // // //can a object key be a number or boolean ? try this 
 
@@ -195,3 +195,4 @@ tesla.charge();
 // // // // };
 
 
+// hi im rajeev an ece graduate and i want to learn web development and i have a good understanding of javascript and i want to learn react js and node js and i want to become a full stack developer and i want to work in a good company and i want to learn new technologies and i want to grow my career in web development.

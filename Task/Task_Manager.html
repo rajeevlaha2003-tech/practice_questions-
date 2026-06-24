@@ -7,16 +7,37 @@
     <link rel="stylesheet" href="Task_Manager.css">
 </head>
 <body>
-    
+
     <div class="card">
-           <div class="task-input">
-            <input type="text" placeholder="Add a new task...">
-            <button>Add Task</button>
+
+        <h1>Task Manager</h1>
+
+        <div class="task-input">
+            <input
+                type="text"
+                id="taskInput"
+                placeholder="Add a new task..."
+            >
+            <button id="addBtn">Add Task</button>
         </div>
- <div class="task-list">
-            <div class="task">Learn JavaScript</div>
-            <div class="task">Build Task Manager UI</div>
+
+        <div class="stats">
+            <div>
+                Total Tasks:
+                <span id="taskCount">0</span>
+            </div>
+
+            <div>
+                Pending Tasks:
+                <span id="pendingCount">0</span>
+            </div>
         </div>
+
+        <div class="task-list" id="taskList"></div>
+
+    </div>
+
     <script src="Task_Manager.js"></script>
+
 </body>
 </html>

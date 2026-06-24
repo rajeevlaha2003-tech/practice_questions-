@@ -1,32 +1,38 @@
 *{
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
 }
+
 body{
-  min-height: 100vh;
-  background: #0D0F14;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-body {
-  background: rgb(13, 15, 20);
+    min-height:100vh;
+    background:#0D0F14;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-family:Arial, Helvetica, sans-serif;
 }
 
 .card{
-  width: 900px;
-  height: 500px;
-  background: #11141b;
-  border: 1px solid #1f2530;
-  border-radius: 24px;
-  box-shadow:
-    0 0 0 1px rgba(255,255,255,0.03),
-    0 20px 60px rgba(0,0,0,0.5);
+    width:900px;
+    min-height:550px;
+    background:#11141b;
+    border:1px solid #1f2530;
+    border-radius:24px;
+    padding:25px;
+    box-shadow:
+        0 0 0 1px rgba(255,255,255,0.03),
+        0 20px 60px rgba(0,0,0,0.5);
+}
+
+h1{
+    color:white;
+    text-align:center;
+    margin-bottom:25px;
 }
 
 .task-input{
-    width:90%;
+    width:100%;
     height:70px;
     display:flex;
     align-items:center;
@@ -34,8 +40,8 @@ body {
     border:1px solid #2d3442;
     border-radius:40px;
     padding:8px;
-    margin:15px auto auto ;
 }
+
 .task-input input{
     flex:1;
     height:100%;
@@ -52,7 +58,7 @@ body {
 }
 
 .task-input button{
-    width:120px;
+    width:130px;
     height:52px;
     border:none;
     border-radius:30px;
@@ -67,22 +73,58 @@ body {
     opacity:0.9;
 }
 
+.stats{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    color:#8b94a7;
+    margin:20px 0;
+    font-size:18px;
+    font-weight:500;
+}
+
 .task-list{
-    margin-top:30px;
-    width :80%;
-    height:350px;
-    align-self:center;
-    margin : 15px 50px auto;
-    padding:15px;
+    max-height:350px;
+    overflow-y:auto;
 }
 
 .task{
     background:#181c24;
     color:white;
-
     padding:15px 20px;
     border-radius:15px;
     margin-bottom:12px;
     border:1px solid #2d3442;
+
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
 }
- 
+
+.task.completed{
+    text-decoration:line-through;
+    opacity:0.6;
+}
+
+.actions{
+    display:flex;
+    gap:10px;
+}
+
+.complete-btn,
+.delete-btn{
+    border:none;
+    padding:10px 15px;
+    border-radius:10px;
+    cursor:pointer;
+    color:white;
+    font-weight:600;
+}
+
+.complete-btn{
+    background:#22c55e;
+}
+
+.delete-btn{
+    background:#ef4444;
+}
